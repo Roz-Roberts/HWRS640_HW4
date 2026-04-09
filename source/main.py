@@ -11,7 +11,7 @@ sys.path.append(base_dir)
 def CLI() -> None:
     pass
 
-@CLI.command("summarize-data", help="Summary of data in graphical format")
+@CLI.command("summarize-data", help="Summary of best results in graphical format")
 def summarize_data():
     click.echo("-"*20)
     click.echo("Summarizing data...")
@@ -20,7 +20,7 @@ def summarize_data():
     click.echo(f"Output Folder: {sys.path[0]}\\outputs")
     click.echo("-"*20)
 
-@CLI.command("train", help="Train the model")
+@CLI.command("train", help="Train the model with given parameters: defaults: LSTM, sequence length = 30, epochs = 20")
 @click.option("--model", default="LSTM", help="Model type *ONLY LSTM IMPLEMENTED*")
 @click.option("--seq-len", default=30, help="Sequence length")
 @click.option("--epochs", default=20, help="Number of epochs")
@@ -39,7 +39,7 @@ def train(model: str, seq_len: int, epochs: int) -> None:
 
 
 @CLI.command("evaluate", help="Evaluate the model")
-@click.option("--file-name", default="best_LSTM.pt", help="File name to evaluate a given .pt file, default best_LSTM.pt")
+@click.option("--file-name", default="best_LSTM.pt", help="File name (from outputs folder) to evaluate a given .pt file, default best_LSTM.pt")
 def evaluate(file_name: str) -> None:
     click.echo("-"*20)
     click.echo(f"Evaluating {file_name}...")
@@ -47,7 +47,7 @@ def evaluate(file_name: str) -> None:
 
 
 @CLI.command("plot", help="Plot A Given File, if none given plot best LSTM results")
-@click.option("--file-name", default="best_LSTM.pt", help="File name of the model to plot")
+@click.option("--file-name", default="best_LSTM.pt", help="File name of the model to plot, from outputs folder")
 def plot(file_name: str) -> None:
     click.echo("-"*20)
     click.echo(f"Plotting {file_name}...")
