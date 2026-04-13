@@ -2,9 +2,7 @@ from pathlib import Path
 import click
 
 # Commands from source files
-from data import *
-from train import *
-
+import data, model, train, validation, plotting, utils
 
 SOURCE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = SOURCE_DIR.parent
@@ -24,13 +22,14 @@ def CLI() -> None:
 def summarize_data(structure: bool, file_path: str) -> None:
     click.echo("-" * 20)
     if structure:
-        data_structure(file_path)
+        utils.data_structure(file_path)
     else:
         click.echo("Summarizing data...")
         click.echo("Rendering Plots...")
         click.echo("Plots Rendered to Output Folder...")
         click.echo(f"Output Folder: {DEFAULT_OUTPUT_DIR}")
     click.echo("-"*20)
+    return
 
 
 
@@ -45,23 +44,24 @@ def summarize_data(structure: bool, file_path: str) -> None:
 def train(model: str, seq_len: int, epochs: int, file_path: str, just: bool, horizon: int) -> None:
     click.echo("-"*20)
     if just:
-        training_split(file_path, just)
+        data.training_split(file_path, just)
         click.echo("-"*20)
         return
 
+    click.echo("Supervised Learning Setup:")
+    click.echo("-"*20)
+    utils.explain_supervised_setup(file_path, seq_len, horizon)
+    click.echo("-"*20)
 
     if model == "LSTM" and seq_len == 30 and epochs == 20:
         click.echo("Training model on default parameters...")
         click.echo("-"*20)
     else:
         click.echo("Using user-defined model parameters...")
+        click.echo("-"*20)
 
-    click.echo(f"Model type: {model}")
-    click.echo(f"Sequence length: {seq_len}")
-    click.echo(f"Epochs: {epochs}")
-    click.echo(f"Forecasting Horizon: {horizon}")
-    click.echo("-"*20)
     click.echo(f"Starting Training...")
+    return
 
 
 
@@ -71,16 +71,23 @@ def evaluate(file_name: str) -> None:
     click.echo("-"*20)
     click.echo(f"Evaluating {file_name}...")
     click.echo("-"*20)
+    return
 
 
-@CLI.command("plot", help="Plot A Given File, if none given plot best LSTM results")
+@CLI.command("plot", help="Plot a given file, if none given plot best LSTM results")
 @click.option("--file-name", default="best_LSTM.pt", show_default=True, help="File name of the model to plot, from outputs folder")
-def plot(file_name: str) -> None:
+@click.option("--explore", is_flag=True, help="Flag to display the exploration plots")
+def plot(file_name: str, explore:bool) -> None:
     click.echo("-"*20)
-    click.echo(f"Plotting {file_name}...")
+    if explore:
+        plotting.exploration_plots()
+        print("EXPLORE")
+    else:
+        click.echo("-"*20)
+        click.echo(f"Plotting {file_name}...")
+
     click.echo("-"*20)
-
-
+    return
 
 
 if __name__ == '__main__':
