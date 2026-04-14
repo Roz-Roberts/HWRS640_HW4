@@ -2,13 +2,12 @@ from pathlib import Path
 import click
 
 # Commands from source files
-import data, model, train, validation, plotting, utils
+import data, model, train, validation, plotting, utils640
 
 SOURCE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = SOURCE_DIR.parent
 DEFAULT_DATA_DIR = PROJECT_DIR.joinpath("data")
 DEFAULT_OUTPUT_DIR = PROJECT_DIR.joinpath("outputs")
-
 
 @click.group()
 def CLI() -> None:
@@ -80,8 +79,8 @@ def evaluate(file_name: str) -> None:
 def plot(file_name: str, explore:bool) -> None:
     click.echo("-"*20)
     if explore:
-        plotting.exploration_plots()
-        print("EXPLORE")
+        typ = click.prompt("Number of Stream Flow Time Series Plots To Make", default = 5, show_default=True)
+        plotting.exploration_plots(typ, DEFAULT_DATA_DIR)
     else:
         click.echo("-"*20)
         click.echo(f"Plotting {file_name}...")
