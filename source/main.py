@@ -21,7 +21,7 @@ def CLI() -> None:
 def summarize_data(structure: bool, file_path: str) -> None:
     click.echo("-" * 20)
     if structure:
-        utils.data_structure(file_path)
+        utils640.data_structure(file_path)
     else:
         click.echo("Summarizing data...")
         click.echo("Rendering Plots...")
@@ -49,7 +49,7 @@ def train(model: str, seq_len: int, epochs: int, file_path: str, just: bool, hor
 
     click.echo("Supervised Learning Setup:")
     click.echo("-"*20)
-    utils.explain_supervised_setup(file_path, seq_len, horizon)
+    utils640.explain_supervised_setup(file_path, seq_len, horizon)
     click.echo("-"*20)
 
     if model == "LSTM" and seq_len == 30 and epochs == 20:
