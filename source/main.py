@@ -43,7 +43,7 @@ def summarize_data(structure: bool, file_path: str) -> None:
 def train(model: str, seq_len: int, epochs: int, file_path: str, just: bool, horizon: int) -> None:
     click.echo("-"*20)
     if just:
-        data.training_split(file_path, just)
+        data.training_split_justification()
         click.echo("-"*20)
         return
 

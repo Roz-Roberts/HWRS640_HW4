@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import click
-import data
+import old_data
 import random
 
 
