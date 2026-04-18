@@ -1,15 +1,16 @@
 import matplotlib.pyplot as plt
 import click
-import old_data
+import data
 import random
 
 
-def exploration_plots(typ, fp):
+def exploration_plots(typ, fp, out = None):
     # We need to get the following for plots: validation_basins, training_basins, target_variable
-    ds, bi, ba = data.load_basin_data(fp)
+    ds, bi, ba, _ = data.load_basin_data(fp)
 
-    # print(bi)
+
     indxes = random.sample(range(len(bi)), typ)
+
     click.echo(f"Plotting Time-Series for Basins: {indxes}")
     basins = list(bi.iloc[indxes, :]['basin_id'])
 
@@ -54,6 +55,9 @@ def exploration_plots(typ, fp):
     ax[2].legend(lines, labels, loc="upper center", bbox_to_anchor=(0.5, -0.25), ncol=2, frameon=False)
     plt.tight_layout(rect=[0,0.06,1,1])
     plt.subplots_adjust(hspace=0.5)
-    plt.show(block=True)
+    if out != None:
+        plt.savefig(f"{out}")
+    else:
+        plt.show(block=True)
     return
 

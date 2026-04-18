@@ -24,9 +24,10 @@ def summarize_data(structure: bool, file_path: str) -> None:
         utils640.data_structure(file_path)
     else:
         click.echo("Summarizing data...")
-        click.echo("Rendering Plots...")
+        click.echo("Rendering Exploration Plots...")
+        plotting.exploration_plots(5, file_path, f"{DEFAULT_OUTPUT_DIR}\\summary_plots.png")
         click.echo("Plots Rendered to Output Folder...")
-        click.echo(f"Output Folder: {DEFAULT_OUTPUT_DIR}")
+        click.echo(f"Output Folder: {DEFAULT_OUTPUT_DIR}\\summary_plots.png")
     click.echo("-"*20)
     return
 
@@ -80,7 +81,13 @@ def plot(file_name: str, explore:bool) -> None:
     click.echo("-"*20)
     if explore:
         typ = click.prompt("Number of Stream Flow Time Series Plots To Make", default = 5, show_default=True)
-        plotting.exploration_plots(typ, DEFAULT_DATA_DIR)
+        sv = click.prompt("Save Plot? Y/N", default="N", show_default=True)
+        if sv == "Y":
+            plotting.exploration_plots(typ, DEFAULT_DATA_DIR, f"{DEFAULT_OUTPUT_DIR}\\exploration_plots.png")
+            click.echo("Plots Rendered to Output Folder...")
+            click.echo(f"Output Folder: {DEFAULT_OUTPUT_DIR}\\exploration_plots.png")
+        else:
+            plotting.exploration_plots(typ, DEFAULT_DATA_DIR)
     else:
         click.echo("-"*20)
         click.echo(f"Plotting {file_name}...")

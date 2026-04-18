@@ -303,7 +303,9 @@ def load_basin_data(file_path):
 
     ds = dt.load_all()
 
-    train_loader, val_loader, test_loader, train_dataset, val_dataset, test_dataset = make_dataloaders(ds)
+    train_ds, val_ds, test_ds, train_basins, val_basins, test_basins = split_dataset_by_basin(ds)
+
+    train_loader, val_loader, test_loader, train_dataset, val_dataset, test_dataset = make_dataloaders(train_ds, val_ds,test_ds)
 
     return ds, basin_indexes, basin_attrs, train_dataset.get_var_info()
 
