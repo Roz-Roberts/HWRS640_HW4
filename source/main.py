@@ -33,15 +33,46 @@ def summarize_data(structure: bool, file_path: str) -> None:
 
 
 
-@CLI.command("train", help="Train the model with given parameters")
-@click.option("--model", default="LSTM", help="Model type *ONLY LSTM IMPLEMENTED*", show_default=True)
-@click.option("--seq-len", default=30, help="Sequence length", show_default=True)
-@click.option("--epochs", default=20, help="Number of epochs", show_default=True)
-@click.option("--file-path", type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
-              default=DEFAULT_DATA_DIR, show_default=True)
+@CLI.command("train", help="Train the LSTM model with given parameters")
+@click.option(
+    "--file-path",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    default=DEFAULT_DATA_DIR,
+    show_default=True,
+    help="Path to MiniCamels data directory",
+)
+@click.option(
+    "--output-dir",
+    type=click.Path(file_okay=False, dir_okay=True, path_type=Path),
+    default=DEFAULT_OUTPUT_DIR,
+    show_default=True,
+    help="Directory for checkpoints and outputs",
+)
+@click.option("--seq-len", default=30, type=int, show_default=True, help="Sequence length")
+@click.option("--horizon", default=1, type=int, show_default=True, help="Forecast horizon")
+@click.option("--learning-rate", default=1e-3, type=float, show_default=True, help="Learning rate")
+@click.option("--batch-size", default=64, type=int, show_default=True, help="Batch size")
+@click.option("--epochs", default=20, type=int, show_default=True, help="Number of epochs")
+@click.option("--hidden-size", default=64, type=int, show_default=True, help="LSTM hidden size")
+@click.option("--num-layers", default=1, type=int, show_default=True, help="Number of LSTM layers")
+@click.option("--dropout", default=0.0, type=float, show_default=True, help="LSTM dropout")
+@click.option("--seed", default=42, type=int, show_default=True, help="Random seed")
+@click.option("--nse-interval", default=10, type=int, show_default=True, help="How often to print NSE")
 @click.option("--just", is_flag=True,help="A flag to output the training scheme justification to the command line. Does not allow for training!")
-@click.option("--horizon", default=1, show_default=True, help="Forecasting Horizon")
-def train(model: str, seq_len: int, epochs: int, file_path: str, just: bool, horizon: int) -> None:
+
+def train_command(file_path,
+    output_dir,
+    seq_len,
+    horizon,
+    learning_rate,
+    batch_size,
+    epochs,
+    hidden_size,
+    num_layers,
+    dropout,
+    seed,
+    nse_interval,
+    just: bool) -> None:
     click.echo("-"*20)
     if just:
         data.training_split_justification()
@@ -61,6 +92,7 @@ def train(model: str, seq_len: int, epochs: int, file_path: str, just: bool, hor
         click.echo("-"*20)
 
     click.echo(f"Starting Training...")
+    train.train_model(file_path=file_path, output_dir=output_dir, seq_len=seq_len, horizon=horizon, batch_size=batch_size, learning_rate=learning_rate, epochs=epochs, hidden_size=hidden_size, num_layers=num_layers, dropout=dropout, seed=seed, nse_interval=nse_interval)
     return
 
 
@@ -77,7 +109,8 @@ def evaluate(file_name: str) -> None:
 @CLI.command("plot", help="Plot a given file, if none given plot best LSTM results")
 @click.option("--file-name", default="best_LSTM.pt", show_default=True, help="File name of the model to plot, from outputs folder")
 @click.option("--explore", is_flag=True, help="Flag to display the exploration plots")
-def plot(file_name: str, explore:bool) -> None:
+@click.option("--history-plot", is_flag=True, help="Flag to display a training history plot, or just the latest training run plots.")
+def plot(file_name: str, explore:bool, history_plot:bool) -> None:
     click.echo("-"*20)
     if explore:
         typ = click.prompt("Number of Stream Flow Time Series Plots To Make", default = 5, show_default=True)
@@ -88,6 +121,10 @@ def plot(file_name: str, explore:bool) -> None:
             click.echo(f"Output Folder: {DEFAULT_OUTPUT_DIR}\\exploration_plots.png")
         else:
             plotting.exploration_plots(typ, DEFAULT_DATA_DIR)
+    elif history_plot:
+        sv = click.prompt("History File Name to Plot, leave blank for default", default="training_history.json", show_default=True)
+        histpath = DEFAULT_OUTPUT_DIR / "training_results" / sv
+        plotting.run_saved_plots(histpath)
     else:
         click.echo("-"*20)
         click.echo(f"Plotting {file_name}...")

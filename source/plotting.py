@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-import click
-import data
-import random
+import click, data, random
+from pathlib import Path
 
+import utils640
 
 def exploration_plots(typ, fp, out = None):
     # We need to get the following for plots: validation_basins, training_basins, target_variable
@@ -61,3 +61,57 @@ def exploration_plots(typ, fp, out = None):
         plt.show(block=True)
     return
 
+def plot_training_history(history, output_dir = None, show = True):
+    epochs = list(range(1, len(history["train_loss"]) + 1))
+
+    fig, ax = plt.subplots(3, 1, figsize=(8, 12), sharex=True)
+    best_epoch = min(range(len(history["val_loss"])), key=lambda i: history["val_loss"][i]) + 1
+    ax[0].axvline(best_epoch, linestyle="--", label=f"Best Epoch: {best_epoch}", color='red')
+    ax[1].axvline(best_epoch, linestyle="--", label=f"Best Epoch: {best_epoch}", color='red')
+    ax[2].axvline(best_epoch, linestyle="--", label=f"Best Epoch: {best_epoch}", color='red')
+
+
+    # Plot 1: training loss
+    ax[0].plot(epochs, history["train_loss"], marker="o", label="Training Loss", color='blue')
+    ax[0].set_title("Training Loss vs. Epoch")
+    # ax[0].set_xlabel("Epochs")
+    ax[0].set_ylabel("Training MSE Loss")
+    ax[0].grid(True)
+    ax[0].legend()
+
+    # Plot 2: validation loss:
+    ax[1].plot(epochs, history["val_loss"], marker="o", label="Validation Loss", color="blue")
+    ax[1].set_title("Validation Loss vs. Epoch")
+    ax[1].set_title("Validation Loss vs. Epoch")
+    # ax[1].set_xlabel("Epochs")
+    ax[1].set_ylabel("Validation MSE Loss")
+    ax[1].grid(True)
+    ax[1].legend()
+
+    # Plot 3: validation metric
+    ax[2].plot(epochs, history["val_nse"], marker="o", label="Validation NSE", color="blue")
+    ax[2].set_title("Validation NSE vs. Epoch")
+    ax[2].set_xlabel("Epochs")
+    ax[2].set_ylabel("Validation NSE")
+    ax[2].grid(True)
+
+    plt.tight_layout()
+
+    if output_dir is not None:
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        save_path = output_dir / "training_curves.png"
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        print(f"Saved plot to: {save_path}")
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+    return
+
+def run_saved_plots(history_path, output_dir=None, show=True):
+    history = utils640.load_history(history_path)
+    plot_training_history(history, output_dir=output_dir, show=show)
