@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import click, data, random
 from pathlib import Path
+import torch
+import numpy as np
 
 import utils640
 
@@ -115,3 +117,86 @@ def plot_training_history(history, output_dir = None, show = True):
 def run_saved_plots(history_path, output_dir=None, show=True):
     history = utils640.load_history(history_path)
     plot_training_history(history, output_dir=output_dir, show=show)
+
+
+def plot_three_test_basins(
+    model,
+    test_dataset,
+    basin_ids=None,
+    output_dir=None,
+    device="cpu",
+    show=True,
+):
+    model.eval()
+
+    available_test_basins = list(dict.fromkeys([sample[0] for sample in test_dataset.samples]))
+
+    if len(basin_ids) == 0:
+        basin_ids = available_test_basins[:3]
+        click.echo(f"Available Test Basins: {available_test_basins}")
+    else:
+        basin_ids = basin_ids[:3]
+
+    if len(basin_ids) < 3:
+        raise ValueError("Need at least three test basins to make the 2x3 validation plot.")
+
+    fig, ax = plt.subplots(2, 3, figsize=(18, 8))
+
+    all_metrics = {}
+
+    for col, basin_id in enumerate(basin_ids):
+        times, obs, pred = utils640.collect_basin_predictions(
+            model=model,
+            test_dataset=test_dataset,
+            basin_id=basin_id,
+            device=device,
+        )
+
+        metrics = utils640.basin_metrics(obs, pred)
+        all_metrics[basin_id] = metrics
+
+        # ---------------------------
+        # Top row: time series
+        # ---------------------------
+        ax[0, col].plot(times, obs, label="Observed")
+        ax[0, col].plot(times, pred, label="Predicted")
+        ax[0, col].set_title(f"Basin {basin_id} Time Series")
+        ax[0, col].set_xlabel("Time")
+        ax[0, col].set_ylabel("Streamflow")
+        ax[0, col].grid(True)
+        ax[0, col].legend()
+
+        # ---------------------------
+        # Bottom row: parity plot
+        # ---------------------------
+        ax[1, col].scatter(obs, pred, alpha=0.5)
+
+        min_val = min(np.min(obs), np.min(pred))
+        max_val = max(np.max(obs), np.max(pred))
+
+        ax[1, col].plot([min_val, max_val], [min_val, max_val], linestyle="--")
+
+        ax[1, col].set_title(
+            f"Basin {basin_id} Parity\n"
+            f"NSE={metrics['NSE']:.3f}, RMSE={metrics['RMSE']:.3f}"
+        )
+        ax[1, col].set_xlabel("Observed Streamflow")
+        ax[1, col].set_ylabel("Predicted Streamflow")
+        ax[1, col].grid(True)
+
+    plt.tight_layout()
+
+    if output_dir is not None:
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        save_path = output_dir / "three_test_basins_validation.png"
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        click.echo(f"Saved validation plot to: {save_path}")
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+    return all_metrics
