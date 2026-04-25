@@ -13,6 +13,7 @@ def data_structure(file_path):
     click.echo(f"Dynamic Input Variables: {', '.join(veris[0])}")
     click.echo(f"Target Variable: {veris[1]}")
     click.echo(f"Number of Static Attributes: {ba.shape[1]}")
+    click.echo("Number of Static Attributes Used in LSTM: 0")
     return
 
 
@@ -48,7 +49,7 @@ def mae(obs, pred):
 
 def nse(obs, pred):
     numerator = np.sum((obs-pred)**2)
-    denominator = np.sum((obs-np.mean(obs)))
+    denominator = np.sum((obs-np.mean(obs))**2)
     if denominator == 0:
         return np.nan
 

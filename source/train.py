@@ -150,7 +150,7 @@ def train_model(file_path,
     if input_vars is None:
         input_vars = vs[0]
 
-    train_loader, val_loader, test_loader, train_dataset, val_dataset, test_dataset = data.make_dataloaders(train_ds, val_ds, test_ds)
+    train_loader, val_loader, test_loader, train_dataset, val_dataset, test_dataset = data.make_dataloaders(train_ds, val_ds, test_ds, input_vars, target_var,seq_len,horizon,batch_size)
 
     lstm_model = model.LSTM_model(input_size=len(input_vars),
                                   hidden_size=hidden_size,
@@ -264,7 +264,7 @@ def train_model(file_path,
 
 
         # Last check point saving
-        save_check(lstm_model, optimizer, epoch, train_loss, val_loss, best_model_path)
+        save_check(lstm_model, optimizer, epoch, train_loss, val_loss, best_model_path, config)
 
 
     click.echo("-" * 20)
