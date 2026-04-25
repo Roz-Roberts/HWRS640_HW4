@@ -64,7 +64,7 @@ def summarize_data(structure: bool, file_path: str) -> None:
 @click.option("--num-layers", default=1, type=int, show_default=True, help="Number of LSTM layers")
 @click.option("--dropout", default=0.0, type=float, show_default=True, help="LSTM dropout")
 @click.option("--seed", default=42, type=int, show_default=True, help="Random seed")
-@click.option("--nse-interval", default=10, type=int, show_default=True, help="How often to print NSE")
+@click.option("--nse-interval", default=1, type=int, show_default=True, help="How often to print NSE")
 @click.option("--just", is_flag=True,help="A flag to output the training scheme justification to the command line. Does not allow for training!")
 
 def train_command(file_path,

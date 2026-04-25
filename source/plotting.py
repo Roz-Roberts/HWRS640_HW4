@@ -190,7 +190,7 @@ def plot_three_test_basins(
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        save_path = output_dir / "three_test_basins_validation.png"
+        save_path = output_dir / "Figure_2.png"
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
         click.echo(f"Saved validation plot to: {save_path}")
 
