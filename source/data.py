@@ -295,7 +295,10 @@ def make_dataloaders(train_ds, val_ds,test_ds, input_vars=None, target_var="qobs
 
 
 def load_basin_data(file_path):
-    dt = mc.MiniCamels(file_path)
+    if file_path is None:
+        dt = mc.MiniCamels()
+    else:
+        dt = mc.MiniCamels(file_path)
 
     basin_indexes = dt.basins()
 

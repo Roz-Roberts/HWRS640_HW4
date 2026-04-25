@@ -1,5 +1,5 @@
 from pathlib import Path
-import click
+import click, shutil
 
 # Commands from source files
 import data, model, train, validation, plotting, utils640
@@ -20,6 +20,13 @@ def CLI() -> None:
               default=DEFAULT_DATA_DIR, help="File path to the MiniCamels data file. Defaults to provided data folder.", show_default=True)
 def summarize_data(structure: bool, file_path: str) -> None:
     click.echo("-" * 20)
+    if file_path != DEFAULT_DATA_DIR:
+        click.echo(f"You have selected a separate MiniCamels data file location at {file_path}")
+        click.echo("If you encounter issues leave this field blank and the CLI will use the default data provided with this CLI.")
+        click.echo("The default data contained in this CLI is the same MiniCamels data files as of: 04/24/2026")
+        click.echo("-"*20)
+
+
     if structure:
         utils640.data_structure(file_path)
     else:
@@ -145,10 +152,9 @@ def evaluate(
 
 
 @CLI.command("plot", help="Plot a given file, if none given plot best LSTM results")
-@click.option("--file-name", default="best_LSTM.pt", show_default=True, help="File name of the model to plot, from outputs folder")
 @click.option("--explore", is_flag=True, help="Flag to display the exploration plots")
 @click.option("--history-plot", is_flag=True, help="Flag to display a training history plot, or just the latest training run plots.")
-def plot(file_name: str, explore:bool, history_plot:bool) -> None:
+def plot(explore:bool, history_plot:bool) -> None:
     click.echo("-"*20)
     if explore:
         typ = click.prompt("Number of Stream Flow Time Series Plots To Make", default = 5, show_default=True)
@@ -163,9 +169,6 @@ def plot(file_name: str, explore:bool, history_plot:bool) -> None:
         sv = click.prompt("History File Name to Plot, leave blank for default", default="training_history.json", show_default=True)
         histpath = DEFAULT_OUTPUT_DIR / "training_results" / sv
         plotting.run_saved_plots(histpath)
-    else:
-        click.echo("-"*20)
-        click.echo(f"Plotting {file_name}...")
 
     click.echo("-"*20)
     return

@@ -89,16 +89,29 @@ def run_single_epoch(model, loader, criterion, optimizer=None, device='cpu'):
     return epoch_loss, epoch_nse
 
 
-def save_check(model, optimizer, epoch, train_loss, val_loss, path):
+def save_check(model, optimizer, epoch, train_loss, val_loss, path, config):
     checkpoint = {
         "epoch": epoch,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "train_loss": train_loss,
         "val_loss": val_loss,
+        "config": config,
     }
 
     torch.save(checkpoint, path)
+
+
+def load_previous_best_val_loss(best_model_path):
+    if not best_model_path.exists():
+        return float("inf")
+
+    checkpoint = torch.load(best_model_path, map_location="cpu")
+
+    if "val_loss" in checkpoint:
+        return checkpoint["val_loss"]
+
+    return float("inf")
 
 
 def train_model(file_path,
@@ -155,6 +168,7 @@ def train_model(file_path,
         "val_loss": [],
         "train_nse": [],
         "val_nse": [],
+        "config": ""
     }
 
     best_val_loss = float("inf")
@@ -185,6 +199,10 @@ def train_model(file_path,
 
     for epoch in range(1, epochs + 1):
         # Training component
+
+        best_val_loss = load_previous_best_val_loss(best_model_path)
+        click.echo(f"Previous best validation loss: {best_val_loss:.6f}")
+
         click.echo(f"Starting Epoch {epoch}")
         train_loss, train_nse = run_single_epoch(
             model=lstm_model,
@@ -211,15 +229,38 @@ def train_model(file_path,
         # Report the loss values while looping
 
         click.echo(f"Epoch: {epoch}/{epochs} | Train MSE: {train_loss} | Val MSE: {val_loss}")
+        config = {
+            "file_path": str(file_path),
+            "output_dir": str(output_dir),
+            "seq_len": seq_len,
+            "horizon": horizon,
+            "batch_size": batch_size,
+            "learning_rate": learning_rate,
+            "epochs": epochs,
+            "hidden_size": hidden_size,
+            "num_layers": num_layers,
+            "dropout": dropout,
+            "target_var": target_var,
+            "input_vars": input_vars,
+            "seed": seed,
+            "checkpoint_name": checkpoint_name,
+            "nse_interval": nse_interval,
+        }
+        history["config"] = config
+
         if (epoch % nse_interval) == 0 or (epoch == epochs):
             click.echo(f"Train NSE: {train_nse} | Val NSE: {val_nse}")
         click.echo("-" * 20)
         # Best model checkpointing
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            save_check(lstm_model, optimizer, epoch, train_loss, val_loss, best_model_path)
+            save_check(lstm_model, optimizer, epoch, train_loss, val_loss, best_model_path, config)
             click.echo("-" * 20)
             click.echo(f"Saved new best model to: {best_model_path}")
+        else:
+            click.echo("Current model did not improve over saved best model.")
+            run_checkpoint_path = output_dir / f"run_seq{seq_len}_hidden{hidden_size}_layers{num_layers}_lr{learning_rate}.pt"
+            save_check(lstm_model, optimizer, epoch, train_loss, val_loss, run_checkpoint_path, config)
 
 
         # Last check point saving
