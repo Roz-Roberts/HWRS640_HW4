@@ -53,9 +53,10 @@ It should be noted that for this LSTM the static attributes are ignored.
 ```terminaloutput
 python source\main.py plot
 ```
-Provides many avenues to plot data from the LSTM. Passing the "explore" flag generates the 
+Provides two direct avenues to plot data from the LSTM. Passing the "explore" flag generates the 
 exploratory plots from Question 1 of this homework. The "history-plot" flag plots the last,
-or a specified training history.
+or a specified training history. Otherwise, plotting the values for a specific run comes from the
+evaluate command.
 
 --- 
 
@@ -82,13 +83,13 @@ to see how this is done.
 To reproduce the best LSTM model that I was able to train use the following commands for training and evaluation:
 
 ```terminaloutput
-source/main.py train --epochs 80 --nse-interval 1 --batch-size 64 --hidden-size 64 --num-layers 2 --seed 117
+source/main.py train
 
-python source/main.py evaluate --checkpoint-path outputs/training_results/best_lstm.pt --batch-size 64 --hidden-size 64 --num-layers 2 --seed 117      
+python source/main.py evaluate --checkpoint-path outputs/training_results/best_lstm.pt --batch-size 64 --hidden-size 64 --num-layers 1 --seed 42      
 ```
 
 ---
 
 All of the above information is provided in the various "help" flags of the CLI, so it
-should be very simple to navigate and use. The total PDF writeup for this homework is provided under
+should be very simple to navigate and use. The total PDF (and Markdown) writeup for this homework is provided under
 ```outputs/writeup```.
