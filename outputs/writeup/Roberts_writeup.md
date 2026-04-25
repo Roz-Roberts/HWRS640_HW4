@@ -67,7 +67,7 @@ the response rates on some types of basins but wouldn't be good at generalizng b
 
 ### Problem 4 Answers
 Basin 14316700 (STEAMBOAT CREEK NEAR GLIDE, OR) worked very well with the LSTM.
-Basin 0201600 (COWPASTURE RIVER NEAR CLIFTON FORGE, VA) didn't work very well. 
+Basin 0201600 (COWPASTURE RIVER NEAR CLIFTON FORGE, VA) didn't work as well as the above. 
 
 These two basins are very different in location, one being in Oregon and the other in Virginia. These locations 
 are very different from each other in terms of geology. So my reasoning for the difference is the basin locations

@@ -263,8 +263,6 @@ def train_model(file_path,
             save_check(lstm_model, optimizer, epoch, train_loss, val_loss, run_checkpoint_path, config)
 
 
-        # Last check point saving
-        save_check(lstm_model, optimizer, epoch, train_loss, val_loss, best_model_path, config)
 
 
     click.echo("-" * 20)
