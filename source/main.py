@@ -98,12 +98,50 @@ def train_command(file_path,
 
 
 @CLI.command("evaluate", help="Evaluate the model")
-@click.option("--file-name", default="best_LSTM.pt", show_default=True, help="File name (from outputs folder) to evaluate a given .pt file, default best_LSTM.pt")
-def evaluate(file_name: str) -> None:
-    click.echo("-"*20)
-    click.echo(f"Evaluating {file_name}...")
-    click.echo("-"*20)
-    return
+@click.option("--file-path", type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path), default=DEFAULT_DATA_DIR, show_default=True)
+@click.option("--checkpoint-path", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
+@click.option("--output-dir", type=click.Path(file_okay=False, dir_okay=True, path_type=Path), default=DEFAULT_OUTPUT_DIR, show_default=True)
+@click.option("--seq-len", default=30, type=int, show_default=True)
+@click.option("--horizon", default=1, type=int, show_default=True)
+@click.option("--batch-size", default=64, type=int, show_default=True)
+@click.option("--hidden-size", default=64, type=int, show_default=True)
+@click.option("--num-layers", default=1, type=int, show_default=True)
+@click.option("--dropout", default=0.0, type=float, show_default=True)
+@click.option("--seed", default=42, type=int, show_default=True)
+@click.option(
+    "--basin-id",
+    "basin_ids",
+    multiple=True,
+    help="Optional test basin ID to plot. Can be used up to three times.",
+    default = None)
+def evaluate(
+    file_path,
+    checkpoint_path,
+    output_dir,
+    seq_len,
+    horizon,
+    batch_size,
+    hidden_size,
+    num_layers,
+    dropout,
+    seed,
+    basin_ids,
+):
+    metrics = validation.run_validation(
+        file_path=file_path,
+        checkpoint_path=checkpoint_path,
+        output_dir=output_dir,
+        seq_len=seq_len,
+        horizon=horizon,
+        batch_size=batch_size,
+        hidden_size=hidden_size,
+        num_layers=num_layers,
+        dropout=dropout,
+        seed=seed,
+        basin_ids=basin_ids,
+    )
+    # click.echo(f"Validation Result Metrics: {metrics}")
+
 
 
 @CLI.command("plot", help="Plot a given file, if none given plot best LSTM results")
